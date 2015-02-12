@@ -7,34 +7,67 @@
 	
 	<script src="js/swfobject.js"></script>
 	<script>
-		var flashvars = {
-		};
-		var params = {
-			menu: "false",
-			scale: "noScale",
-			allowFullscreen: "true",
-			allowScriptAccess: "always",
-			bgcolor: "",
-			wmode: "direct" // can cause issues with FP settings & webcam
-		};
-		var attributes = {
-			id:"OnlineConference"
-		};
-		swfobject.embedSWF(
-			"OnlineConference.swf", 
-			"altContent", "100%", "100%", "10.0.0", 
-			"expressInstall.swf", 
-			flashvars, params, attributes);
+		ID_SWF = "OnlineConference";
+	
+		function getSwf() {
+			return document.getElementById(ID_SWF);
+		}
+	
+		function beginTranslation() {
+			getSwf().beginTranslation();
+		}
+		
+		function connect() {
+			getSwf().connect();
+			isConnected();
+		}
+		
+		function isConnected() {
+			var peerId = getSwf().getPeerId();
+			if (peerId != "")
+				alert(peerId);
+			else
+				setTimeout(isConnected, 1000);
+		}
 	</script>
 	<style>
 		html, body { height:100%; overflow:hidden; }
+		
 		body { margin:0; }
+		
+		#video {
+			width: 800px;
+			height: 600px;
+			background: black;
+		}
 	</style>
 </head>
 <body>
-	<div id="altContent">
-		<h1>OnlineConference</h1>
-		<p><a href="http://www.adobe.com/go/getflashplayer">Get Adobe Flash player</a></p>
+	<div id="video">
+		<script>
+			var flashvars = {
+			};
+			var params = {
+				menu: "false",
+				scale: "noScale",
+				allowFullscreen: "false",
+				allowScriptAccess: "always",
+				bgcolor: "black",
+				wmode: "direct"
+			};
+			var attributes = {
+				id: ID_SWF
+			};
+			swfobject.embedSWF(
+				"OnlineConference.swf", 
+				"video", "800px", "600px", "10.0.0", 
+				"expressInstall.swf", 
+				flashvars, params, attributes);
+		</script>
+	</div>
+	<div>
+		<input type="button" value="Начать трансляцию" onclick="beginTranslation()" />
+		<input type="button" value="Подключиться" onclick="connect()" />
 	</div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-package  
+package main
 {
 	import flash.events.NetStatusEvent;
 	import flash.net.GroupSpecifier;

@@ -1,14 +1,15 @@
-package  
+package main
 {
 	import flash.net.GroupSpecifier;
 	import flash.net.NetGroup;
+	import flash.events.NetStatusEvent;
 	
 	/**
 	 * Комната (группа)
 	 */
 	public class Room 
 	{
-		private final var nameGroup:String;
+		private var nameGroup:String;
 		
 		private var users:Array;
 		private var group:NetGroup;

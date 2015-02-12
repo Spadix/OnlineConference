@@ -3,6 +3,7 @@ package main
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
+	import flash.media.Video;
 	import flash.utils.Timer;
 	
 	import flash.external.ExternalInterface;
@@ -14,10 +15,7 @@ package main
 		private const DEVELOP_KEY:String = "3c4f5f1ade545334033a3d06-805376d8c198";
 		
 		private var _peer:Peer;
-		
-		private function get _isConnected():Boolean {
-			return _peer.connectionObj.connected;
-		}
+		private var _video:Video;
 		
 		public function Main():void 
 		{
@@ -36,8 +34,15 @@ package main
 			ExternalInterface.addCallback("connect", connect);
 		}
 		
+		private function initVideo():void {
+			_video = new Video(this.width, this.height);
+			_video.x = 0;
+			_video.y = 0;
+			this.addChild(_video);
+		}
+		
 		public function getPeerId():String {
-			if (_isConnected)
+			if (_peer.connected)
 				return _peer.peerId;
 			return "";
 		}
@@ -47,8 +52,11 @@ package main
 		}
 		
 		public function beginTranslation():void {
-			if (!_isConnected)
+			if (!_peer.connected) {
 				this.connect();
+			}
+			this.initVideo();
+			_peer.beginVideoTranslation(_video);
 		}
 	}
 }

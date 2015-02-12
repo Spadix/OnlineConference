@@ -22,6 +22,10 @@
 			isConnected();
 		}
 		
+		function alertState(state) {
+			alert(state);
+		}
+		
 		function isConnected() {
 			var peerId = getSwf().getPeerId();
 			if (peerId != "")
@@ -31,14 +35,15 @@
 		}
 	</script>
 	<style>
-		html, body { height:100%; overflow:hidden; }
-		
-		body { margin:0; }
+		body {
+			background: silver;
+		}
 		
 		#video {
 			width: 800px;
 			height: 600px;
 			background: black;
+			border: 3px solid black;
 		}
 	</style>
 </head>

@@ -19,16 +19,12 @@ package main
 		
 		public function Main():void 
 		{
-			if (stage)
-				init();
-			else
-				addEventListener(Event.ADDED_TO_STAGE, init);
+			init();
+			initVideo();
 		}
 		
-		private function init(e:Event = null):void 
+		private function init():void 
 		{
-			removeEventListener(Event.ADDED_TO_STAGE, init);
-			//
 			ExternalInterface.addCallback("getPeerId", getPeerId);
 			ExternalInterface.addCallback("beginTranslation", beginTranslation);
 			ExternalInterface.addCallback("connect", connect);
@@ -55,7 +51,6 @@ package main
 			if (!_peer.connected) {
 				this.connect();
 			}
-			this.initVideo();
 			_peer.beginVideoTranslation(_video);
 		}
 	}

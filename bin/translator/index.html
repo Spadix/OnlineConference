@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<title>OnlineConference</title>
+	<meta name="description" content="" />
+	
+	<script src="js/swfobject.js"></script>
+	<script>
+		ID_SWF = "OnlineConference";
+	
+		function getSwf() {
+			return document.getElementById(ID_SWF);
+		}
+	
+		function beginTranslation() {
+			getSwf().beginTranslation();
+		}
+		
+		function connect() {
+			getSwf().connect();
+			isConnected();
+		}
+		
+		function alertState(state) {
+			alert(state);
+		}
+		
+		function isConnected() {
+			var peerId = getSwf().getPeerId();
+			if (peerId != "")
+				alert(peerId);
+			else
+				setTimeout(isConnected, 1000);
+		}
+	</script>
+	<style>
+		body {
+			background: silver;
+		}
+		
+		#video {
+			width: 800px;
+			height: 600px;
+			background: black;
+			border: 3px solid black;
+		}
+	</style>
+</head>
+<body>
+	<div id="video">
+		<script>
+			var flashvars = {
+			};
+			var params = {
+				menu: "false",
+				scale: "noScale",
+				allowFullscreen: "false",
+				allowScriptAccess: "always",
+				bgcolor: "black",
+				wmode: "direct"
+			};
+			var attributes = {
+				id: ID_SWF
+			};
+			swfobject.embedSWF(
+				"OnlineConference.swf", 
+				"video", "800px", "600px", "10.0.0", 
+				"expressInstall.swf", 
+				flashvars, params, attributes);
+		</script>
+	</div>
+	<div>
+		<input type="button" value="Начать трансляцию" onclick="beginTranslation()" />
+		<input type="button" value="Подключиться" onclick="connect()" />
+	</div>
+</body>
+</html>

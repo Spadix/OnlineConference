@@ -1,56 +1,80 @@
-package main
+package main 
 {
 	import flash.events.NetStatusEvent;
-	import flash.media.Camera;
-	import flash.media.Microphone;
-	import flash.media.Video;
+	import flash.external.ExternalInterface;
 	import flash.net.GroupSpecifier;
 	import flash.net.NetConnection;
 	import flash.net.NetGroup;
-	import flash.net.NetStream;
-
-	import flash.external.ExternalInterface;
 	
 	/**
-	 * Элемент (один) группы
+	 * Участник группы (пир)
+	 * 
+	 * Функции:
+		 * подключение к группе и соединению
+		 * обработка сообщений группы
+		 * управление пользователями группы
 	 */
 	public class Peer 
 	{
+		public function debug(value:Object):void {
+			ExternalInterface.call("eval", "alert('"+ JSON.stringify(value) +"')");
+		}
+		
+		//
+		// несовсем КОНСТАНТЫ
+		//
+		private var SERVER_URL:String;
+		private var DEVELOP_KEY:String;
+		
 		//
 		// ПЕРЕМЕННЫЕ
 		//
-		private var _nameGroup:String;
-		private var _users:Object;
-		private var _connection:NetConnection;
-		private var _group:NetGroup;
-		private var _inVideo:Video;
+		protected var _connection:NetConnection;
+		protected var _group:NetGroup;
+		protected var _nameGroup:String;
+		protected var _userManager:UserManager;
+		
+		public var _username:String;
 		
 		//
-		// ПОТОКИ
+		// КОНСТРУКТОР и INIT'ы
 		//
-		private var _inStream:NetStream;
-		private var _outStream:NetStream;
+		public function Peer(serverUrl:String, developKey:String):void {
+			this.SERVER_URL = serverUrl;
+			this.DEVELOP_KEY = developKey;
+			_nameGroup = "test";
+			_userManager = new UserManager();
+		}
+		
+		private function initConnection():void {
+			_connection = new NetConnection();
+			_connection.addEventListener(NetStatusEvent.NET_STATUS, onConnectionEvent);
+			_connection.connect(SERVER_URL, DEVELOP_KEY);
+		}
+		
+		private function initGroup():void {
+			_group = new NetGroup(_connection, this.groupSpecifier.groupspecWithAuthorizations());
+			_group.addEventListener(NetStatusEvent.NET_STATUS, onGroupEvent);
+		}
 		
 		//
 		// GET'еры
 		//
-		public function get peerId():String {
-			return _connection.nearID;
-		}
-		
 		public function get connected():Boolean {
-			return _connection.connected;
+			if (_connection != null) {
+				return _connection.connected;
+			}
+			return false;
 		}
 		
-		public function get inputStream():NetStream {
-			return _inStream;
+		public function get id():String {
+			if (this.connected) {
+				return _connection.nearID;
+			}
+			return "";
 		}
 		
-		public function get outputStream():NetStream {
-			return _outStream;
-		}
-		
-		private function get groupSpecifier():GroupSpecifier {
+		protected function get groupSpecifier():GroupSpecifier {
 			var grSpec = new GroupSpecifier(_nameGroup);
 			grSpec.multicastEnabled = true;
             grSpec.serverChannelEnabled = true;
@@ -59,120 +83,58 @@ package main
 		}
 		
 		//
-		// КОНСТРУКТОР и INIT'ы
+		// МЕТОДЫ
 		//
-		public function Peer(serverUrl:String, developKey:String, nameGroup:String = "Название комнаты") {
-			this.initConnection();
-			_nameGroup = nameGroup;
-			_connection.connect(serverUrl, developKey);
+		public function connect():void {
+			if (!this.connected) {
+				this.initConnection();
+			}
 		}
 		
-		private function initConnection() {
-			_connection = new NetConnection();
-			_connection.addEventListener(NetStatusEvent.NET_STATUS, onConnectionEvent);
-		}
-		
-		public function initGroup():void {
-			_group = new NetGroup(_connection, this.groupSpecifier.groupspecWithAuthorizations());
-			_group.addEventListener(NetStatusEvent.NET_STATUS, onGroupEvent);
-		}
-		
-		private function initInputStream():void {
-			_inStream = new NetStream(_connection,  this.groupSpecifier.groupspecWithAuthorizations());
-			_inStream.addEventListener(NetStatusEvent.NET_STATUS, onInputStreamEvent);
-		}
-		
-		//
-		// ОБРАБОТЧИКИ СОБЫТИЙ
-		//
-		
-		private function onConnectionEvent(e:NetStatusEvent):void {
-			switch (e) {
+		protected function onConnectionEvent(e:NetStatusEvent):void {
+			trace(e.info.code);
+			switch (e.info.code) {
 				// peer успешно подключился к серверу авторизации
 				case "NetConnection.Connect.Success":
 					this.initGroup();
 					break;
-				// трансляция видео с камеры
-				case "NetStream.Connect.Success":
-					this.attachVideoAudioOuputStream();
-					break;
 			}
 		}
 		
-		private function onGroupEvent(e:NetStatusEvent):void {
-			switch (e) {
-				// к группе подключился новый peer
+		protected function onGroupEvent(e:NetStatusEvent):void {
+			trace(e.info.code);
+			switch (e.info.code) {
+				// к группе подключился новый peer (рассказываем о себе)
 				case "NetGroup.Neighbor.Connect":
-					this.addNewUser(e.info.neighbor, e.info.peerID);
+					this.postIamMessage();
+					break;
+				// обработка сообщений группы
+				case "NetGroup.Posting.Notify":
+					this.onInputMessage(e.info.message, e.info.messageID);
 					break;
 				// отключение пользователя от группы
 				case "NetGroup.Neighbor.Disconnect":
-					this.deleteUser(e.info.peerID);
-					break;
-				// обработка входящего потока
-				case "NetGroup.MulticastStream.PublishNotify":
-					this.receptionInputStream(e.info.name);
+					_userManager.remove(e.info.peerID);
 					break;
 			}
 		}
 		
-		private function onInputStreamEvent(e:NetStatusEvent):void {
-			switch(e) {
-				// трансляция видео
-				case "NetStream.Play.Start":
-					this.playVideo();
-					break;
+		public function listUsers():Object {
+			return _userManager.listUsers();
+		}
+		
+		protected function postIamMessage():void {
+			var message = new Object();
+			message.type = "iam";
+			message.peerID = _connection.nearID;
+			message.username = _username;
+			_group.post(message);
+		}
+		
+		protected function onInputMessage(message:Object, messageID:String):void {
+			if (message.type == "iam" && !_userManager.exist(message.peerID)) {
+				_userManager.add(message.peerID, message.username);
 			}
-		}
-		
-		//
-		// МЕТОДЫ ЛОГИКИ
-		//
-		
-		/**
-		 * Начала трансляции видео
-		 */
-		public function beginVideoTranslation(video:Video):void {
-			_inVideo = video;
-			_outStream = new NetStream(_connection, this.groupSpecifier.groupspecWithAuthorizations());
-		}
-		
-		/**
-		 * Добавление пользователя
-		 */
-		private function addNewUser(groupAddress:String, peerId:String):void {
-			if (!_users.hasOwnProperty(peerId))
-				_users[peerId] = { groupAddress: groupAddress };
-		}
-		
-		/**
-		 * Удаление пользователя
-		 */
-		private function deleteUser(peerId:String):void {
-			if (_users.hasOwnProperty(peerId))
-				delete _users[peerId];
-		}
-
-		/**
-		 * Трансляция входящего потока
-		 */
-		private function receptionInputStream(name:String):void {
-			this.initInputStream();
-			_inStream.play(name);
-		}
-		
-		private function playVideo():void {
-			_inVideo.attachNetStream(_inStream);
-		}
-		
-		private function attachVideoAudioOuputStream():void {
-			var nameStream:String = _connection.nearID;
-			
-			_outStream.attachCamera(Camera.getCamera());
-			_outStream.attachAudio(Microphone.getMicrophone());
-			_outStream.publish(nameStream);
-			
-			this.receptionInputStream(nameStream);
 		}
 	}
 }

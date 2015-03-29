@@ -16,7 +16,7 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'12.02.2015'</value>
+      <value>'29.03.2015'</value>
     </define>
     <define append="true">
       <name>CONFIG::air</name>
@@ -32,12 +32,12 @@
     </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <source-path append="true">
-      <path-element>E:\Documents\GitHub\OnlineConference\src</path-element>
-      <path-element>C:\Program Files (x86)\FlashDevelop\Library\AS3\classes</path-element>
+      <path-element>C:\users\rpsv\Мои документы\server\OnlineConference\src</path-element>
+      <path-element>C:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
   </compiler>
   <file-specs>
-    <path-element>E:\Documents\GitHub\OnlineConference\src\main\Main.as</path-element>
+    <path-element>C:\users\rpsv\Мои документы\server\OnlineConference\src\main\MainTranslator.as</path-element>
   </file-specs>
   <default-background-color>#000000</default-background-color>
   <default-frame-rate>30</default-frame-rate>

@@ -45,8 +45,8 @@ package main
 		// КОНСТРУКТОР и INIT'ы
 		//
 		
-		public function Peer(serverUrl:String, developKey:String):void {
-			this.SERVER_URL = serverUrl + developKey;
+		public function Peer(serverUrl:String):void {
+			this.SERVER_URL = serverUrl;
 			_nameGroup = "test";
 			_username = "Translator";
 			_userManager = new UserManager();

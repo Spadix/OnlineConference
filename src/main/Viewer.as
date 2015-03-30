@@ -27,7 +27,7 @@ package main
 		}
 		
 		private function initStream():void {
-			_inputStream = new NetStream(_connection, this.groupSpecifier.groupspecWithAuthorizations());
+			_inputStream = new NetStream(_connection, _groupSpec.groupspecWithAuthorizations());
 			_inputStream.addEventListener(NetStatusEvent.NET_STATUS, onInputStream);
 		}
 		
@@ -43,6 +43,7 @@ package main
 		{
 			switch(e.info.code) {
 				case "NetGroup.MulticastStream.PublishNotify":
+					debug(e.info.code);
 					this.reception(e.info.name);
 					break;
 				default:
@@ -51,7 +52,7 @@ package main
 		}
 		
 		protected function onInputStream(e:NetStatusEvent):void {
-			trace(e.info.code);
+			debug(e.info.code);
 			switch (e.info.code) {
 				case "NetStream.Play.Start":
 					this.attachStreamToVideo();

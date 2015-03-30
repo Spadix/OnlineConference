@@ -9,7 +9,7 @@ package main
 	 */
 	public class MainTranslator extends Sprite
 	{
-		private const SERVER_URL:String = "rtmfp://p2p.rtmfp.net";
+		private const SERVER_URL:String = "rtmfp://p2p.rtmfp.net/";
 		private const DEVELOP_KEY:String = "3c4f5f1ade545334033a3d06-805376d8c198";
 		
 		private var _translator:Translator;
@@ -22,7 +22,11 @@ package main
 			ExternalInterface.addCallback("getPeerId", getPeerId);
 			ExternalInterface.addCallback("connect", connect);
 			ExternalInterface.addCallback("beginTranslation", beginTranslation);
-			ExternalInterface.addCallback("listUsers", listUsers);
+			ExternalInterface.addCallback("users", users);
+		}
+		
+		public function users():Object {
+			return _translator.listUsers();
 		}
 		
 		private function initVideo():void {
@@ -44,10 +48,6 @@ package main
 		
 		public function beginTranslation():void {
 			_translator.begin();
-		}
-		
-		public function listUsers():Object {
-			return _translator.listUsers();
 		}
 	}
 }

@@ -16,7 +16,7 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'29.03.2015'</value>
+      <value>'30.03.2015'</value>
     </define>
     <define append="true">
       <name>CONFIG::air</name>
@@ -37,7 +37,7 @@
     </source-path>
   </compiler>
   <file-specs>
-    <path-element>C:\users\rpsv\Мои документы\server\OnlineConference\src\main\MainTranslator.as</path-element>
+    <path-element>C:\users\rpsv\Мои документы\server\OnlineConference\src\main\MainViewer.as</path-element>
   </file-specs>
   <default-background-color>#000000</default-background-color>
   <default-frame-rate>30</default-frame-rate>

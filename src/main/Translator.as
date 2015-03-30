@@ -30,7 +30,7 @@ package main
 		}
 		
 		private function initStream():void {
-			_outputStream = new NetStream(_connection, this.groupSpecifier.groupspecWithAuthorizations());
+			_outputStream = new NetStream(_connection, _groupSpec.groupspecWithAuthorizations());
 		}
 		
 		//
@@ -54,14 +54,9 @@ package main
 		private function attachCameraAndMicrophone():void {
 			var nameStream:String = _connection.nearID;
 			
-			var cam:Camera = Camera.getCamera();
-			
-			_outputStream.attachCamera(cam);
+			_outputStream.attachCamera(Camera.getCamera());
 			_outputStream.attachAudio(Microphone.getMicrophone());
 			_outputStream.publish(nameStream);
-			
-			_video.width = cam.width;
-			_video.height = cam.height;
 			
 			_video.attachCamera(cam);
 		}
